@@ -1,13 +1,32 @@
+import { House } from "./js/house.js";
+import {
+  createRoundedRect,
+  createOctagon,
+  createRect,
+  createSquare,
+  createCircle,
+  isPointContainedWithinShape,
+} from "./js/utils.js";
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 let WIDTH = 100;
 let HEIGHT = 50;
+let RADIUS = 25;
 
 let selectorElem = document.getElementById("selector");
 let selectedElem = document.getElementById("selected");
+let gameModeElem = document.getElementById("game-mode");
+let curModeElem = document.getElementById("cur-mode");
 
 let selector;
+let gameMode;
+
+gameModeElem.addEventListener("click", (e) => {
+  gameMode = e.target.id;
+  curModeElem.textContent = e.target.textContent;
+});
 
 selectorElem.addEventListener("click", (e) => {
   selector = e.target.id;
@@ -15,49 +34,60 @@ selectorElem.addEventListener("click", (e) => {
   selectedElem.textContent = e.target.textContent;
 });
 
-class House {
-  constructor({ x, y }) {
-    this.x = x;
-    this.y = y;
-    this.width = WIDTH;
-    this.height = HEIGHT;
-  }
-
-  draw(ctx) {
-    ctx.fillRect(this.x, this.y, this.width, this.height);
-  }
-}
-
 let houses = [];
+let housesBuilt = [];
 
-addEventListener("click", (e) => {
-  houses.push({ x: e.clientX, y: e.clientY });
+canvas.addEventListener("click", (e) => {
+  if (gameMode == "select-mode") {
+    houses.push({ x: e.clientX, y: e.clientY, type: selector });
+    housesBuilt.push(new House({ x: e.clientX, y: e.clientY, type: selector }));
+    housesBuilt.forEach((house) => {
+      house.draw(ctx);
+    });
+  } else if (gameMode == "play-mode") {
+    let selectPos = { x: e.clientX, y: e.clientY };
+    houses.forEach((house) => {
+      if (isPointContainedWithinShape(selectPos, house)) {
+        console.log(1);
+      }
+    });
+  }
 });
 
-houses.forEach((house) => {
-  new House({ x: house.x, y: house.y });
-});
+let playModeMouseDown = false;
+let playModeInitialX;
+let playModeInitialY;
 
-function createRoundedSquare(x, y, ctx) {
-  let w = WIDTH - 20;
-  let h = HEIGHT - 20;
-  let radius = 10;
-
-  ctx.beginPath();
-  ctx.arc(x + radius, y + radius, radius, Math.PI, Math.PI * 1.5);
-  ctx.arc(x + radius + w, y + radius, radius, Math.PI * 1.5, Math.PI * 2);
-  ctx.arc(
-    x + WIDTH - radius,
-    y + radius + h,
-    radius,
-    Math.PI * 0,
-    Math.PI * 0.5
-  );
-  ctx.arc(x + radius, y + HEIGHT - radius, radius, Math.PI * 0.5, Math.PI);
-  ctx.closePath();
-  ctx.stroke();
-  ctx.fill();
+function animate() {
+  requestAnimationFrame(animate);
+  if (gameMode == "select-mode") {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  housesBuilt.forEach((house) => {
+    house.draw(ctx);
+  });
 }
 
-createRoundedSquare(50, 50, ctx);
-createRoundedSquare(250, 250, ctx);
+animate();
+
+addEventListener("mousedown", (e) => {
+  if (gameMode == "play-mode") {
+    playModeInitialX = e.clientX;
+    playModeInitialY = e.clientY;
+    playModeMouseDown = true;
+  }
+});
+
+addEventListener("mousemove", (e) => {
+  if (gameMode == "play-mode" && playModeMouseDown == true) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeRect(playModeInitialX, playModeInitialY, e.clientX, e.clientY);
+  }
+});
+
+addEventListener("mouseup", (e) => {
+  if (gameMode == "play-mode") {
+    playModeMouseDown = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+});
