@@ -13,6 +13,7 @@ const ctx = canvas.getContext("2d");
 
 let WIDTH = 100;
 let HEIGHT = 50;
+let SIDE = 25;
 let RADIUS = 25;
 
 let selectorElem = document.getElementById("selector");
@@ -20,36 +21,44 @@ let selectedElem = document.getElementById("selected");
 let gameModeElem = document.getElementById("game-mode");
 let curModeElem = document.getElementById("cur-mode");
 
-let selector;
-let gameMode;
-
-gameModeElem.addEventListener("click", (e) => {
-  gameMode = e.target.id;
-  curModeElem.textContent = e.target.textContent;
-});
-
-selectorElem.addEventListener("click", (e) => {
-  selector = e.target.id;
-  // e.target.style.color = "grey";
-  selectedElem.textContent = e.target.textContent;
-});
+let selector = "archery";
+let gameMode = "select-mode";
 
 let houses = [];
 let housesBuilt = [];
+
+function changeGameMode(e) {
+  gameMode = e.target.id;
+  curModeElem.textContent = e.target.textContent;
+}
+
+function changeSelector(e) {
+  selector = e.target.id;
+  // e.target.style.color = "grey";
+  selectedElem.textContent = e.target.textContent;
+}
+
+selectorElem.addEventListener("click", changeSelector);
+gameModeElem.addEventListener("click", changeGameMode);
 
 canvas.addEventListener("click", (e) => {
   if (gameMode == "select-mode") {
     houses.push({ x: e.clientX, y: e.clientY, type: selector });
     housesBuilt.push(new House({ x: e.clientX, y: e.clientY, type: selector }));
+    console.log(housesBuilt);
     housesBuilt.forEach((house) => {
       house.draw(ctx);
     });
   } else if (gameMode == "play-mode") {
     let selectPos = { x: e.clientX, y: e.clientY };
-    houses.forEach((house) => {
+    console.log("Point:", selectPos);
+    housesBuilt.forEach((house) => {
       if (isPointContainedWithinShape(selectPos, house)) {
-        console.log(1);
+        house.selected = "active";
+        house.color = "grey";
+        house.draw(ctx);
       }
+      console.log(house);
     });
   }
 });
@@ -89,5 +98,39 @@ addEventListener("mouseup", (e) => {
   if (gameMode == "play-mode") {
     playModeMouseDown = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+});
+
+// Keyboard Mode change
+addEventListener("keydown", (e) => {
+  switch (e.key) {
+    case "1":
+      gameMode = "select-mode";
+      curModeElem.textContent = "Select Mode";
+      break;
+    case "2":
+      gameMode = "play-mode";
+      curModeElem.textContent = "Play Mode";
+      break;
+    case "!":
+      selector = "town-center";
+      selectedElem.textContent = "Town Center";
+      break;
+    case "@":
+      selector = "barrack";
+      selectedElem.textContent = "Barrack";
+      break;
+    case "#":
+      selector = "stable";
+      selectedElem.textContent = "Stable";
+      break;
+    case "$":
+      selector = "archery";
+      selectedElem.textContent = "Archery";
+      break;
+    case "%":
+      selector = "siege";
+      selectedElem.textContent = "Siege";
+      break;
   }
 });

@@ -8,6 +8,7 @@ import {
 
 let WIDTH = 100;
 let HEIGHT = 50;
+let SIDE = 25;
 let RADIUS = 25;
 
 export class House {
@@ -16,21 +17,25 @@ export class House {
     this.y = y;
     this.width = WIDTH;
     this.height = HEIGHT;
+    this.side = SIDE;
+    this.radius = RADIUS;
     this.type = type;
+    this.id = `${this.type}-${Math.floor(Math.random() * 1000 + 1)}`;
     this.selected = "NA";
+    this.color = "black";
   }
 
   draw(ctx) {
     if (this.type == "town-center") {
-      createOctagon(this.x, this.y, ctx);
+      createOctagon(this.x, this.y, this.color, ctx);
     } else if (this.type == "barrack") {
-      createRect(this.x, this.y, ctx);
+      createRect(this.x, this.y, this.color, ctx);
     } else if (this.type == "stable") {
-      createRoundedRect(this.x, this.y, ctx);
+      createRoundedRect(this.x, this.y, this.color, ctx);
     } else if (this.type == "archery") {
-      createSquare(this.x, this.y, ctx);
+      createSquare(this.x, this.y, this.color, ctx);
     } else if (this.type == "siege") {
-      createCircle(this.x, this.y, ctx);
+      createCircle(this.x, this.y, this.color, ctx);
     }
   }
 }
